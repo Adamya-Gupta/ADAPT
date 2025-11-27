@@ -1,6 +1,7 @@
-from fastapi import FastAPI
+from fastapi import FastAPI , Depends
 from sqlmodel import SQLModel , Field, create_engine ,Session
 from backend import setting
+from typing import Annotated
 
 
 class adapt (SQLModel,table = True):
@@ -15,21 +16,29 @@ engine = create_engine(connection_string,connect_args={"sslmode":"require"},pool
 
 SQLModel.metadata.create_all(engine)
 
-doc1  = adapt(content="first content" ,doc_type = "docs")
-doc2  = adapt(content="second task" , doc_type = "pdf")
+# commenting this -> automated 
 
-# session : separate session for each functionality/transaction
-session = Session(engine)
+# # created instances of adapt
+# doc1  = adapt(content="first content" ,doc_type = "docs")
+# doc2  = adapt(content="second task" , doc_type = "pdf")
 
-#create docs in database
+# # session : separate session for each functionality/transaction
+# session = Session(engine)
 
-session.add(doc1)
-session.add(doc2)
-print(f'Before Commit {doc1}')
-session.commit()
-session.refresh(doc1)
-print(f'After Commit {doc2}')
-session.close()
+# #create docs in database
+
+# session.add(doc1)
+# session.add(doc2)
+# print(f'Before Commit {doc1}')
+# session.commit()
+# session.refresh(doc1)
+# print(f'After Commit {doc2}')
+# session.close()
+
+def get_session():
+    with Session(engine) as session:
+        # yield is generator function
+        yield session
 
 
 app :FastAPI = FastAPI()
@@ -38,9 +47,14 @@ app :FastAPI = FastAPI()
 async def root():
     return {"message" : "Welcome to the fastapi server"}
 
-@app.post('/contents/')
-async def create_content():
-    ...
+
+# injected session dependency 
+@app.post('/contents/',response_model=adapt)
+async def create_content(file : adapt , session:Annotated[Session,Depends(get_session)]):
+    session.add(file)
+    session.commit()
+    session.refresh(file)
+    return file
 
 @app.get('/contents/')
 async def get_all():
