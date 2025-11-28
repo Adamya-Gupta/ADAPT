@@ -40,6 +40,11 @@ DATABASE_URL =
 ### Step 5: Run Development Servers
 
 ```bash
+#frontend server
+npm run dev
+```
+
+```bash
 #backend server
 python3 -m uvicorn backend.main:app --reload
 ```
