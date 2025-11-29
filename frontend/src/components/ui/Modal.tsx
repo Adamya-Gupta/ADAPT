@@ -9,6 +9,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
+import AddContent from "../AddContent"
 
 
 export function Modal() {
@@ -16,20 +17,16 @@ export function Modal() {
     <Dialog>
       <form>
         <DialogTrigger asChild>
-          <Button variant="outline">Add content</Button>
+          <Button variant="default" className="w-full bg-blue-600 px-2 py-1 text-white uppercase text-lg">Add content</Button>
         </DialogTrigger>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
             <DialogTitle>Add new content</DialogTitle>
            
           </DialogHeader>
-         
-          <DialogFooter>
-            <DialogClose asChild>
-              <Button variant="outline">Cancel</Button>
-            </DialogClose>
-            <button>Save</button>
-          </DialogFooter>
+         <AddContent/>
+
+        
         </DialogContent>
       </form>
     </Dialog>
