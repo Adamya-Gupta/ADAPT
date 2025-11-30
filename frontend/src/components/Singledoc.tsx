@@ -3,6 +3,8 @@ import { SingleFile } from "../../types";
 import ToolTip from "./ToolTip";
 import { Modal } from "./ui/Modal";
 
+// task -> filecontent
+// Todo -> SingleFile
 export default function Singledoc({filecontent}:{filecontent:SingleFile}) {
   return (
   
@@ -14,7 +16,7 @@ export default function Singledoc({filecontent}:{filecontent:SingleFile}) {
             <ToolTip tool_tip_content="Edited">
             <SquareCheckBig />
             </ToolTip>
-            <Modal title="Edit content" Editing={true}>
+            <Modal title="Edit content" Editing={true} filecontent={filecontent}>
             <SquarePen className="text-blue-500"/>
             </Modal>
             <Trash2 className="text-red-500" />
