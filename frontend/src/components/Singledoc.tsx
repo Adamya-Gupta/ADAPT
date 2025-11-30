@@ -5,7 +5,7 @@ import { Modal } from "./ui/Modal";
 
 export default function Singledoc({filecontent}:{filecontent:SingleFile}) {
   return (
-    <>
+  
     <tr className="flex justify-between items-center border-b border-gray-500 px-2 py-2">
         <td>
             {filecontent.content}
@@ -20,6 +20,6 @@ export default function Singledoc({filecontent}:{filecontent:SingleFile}) {
             <Trash2 className="text-red-500" />
         </td>
     </tr>
-    </>
+
   )
 }
