@@ -10,21 +10,24 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import AddContent from "../AddContent"
+import EditContent from "../EditContent"
 
 
-export function Modal() {
+export function Modal({children , title, Adding, Editing}:{children:React.ReactNode,title:string,Adding?:boolean,Editing?:boolean}) {
   return (
     <Dialog>
       <form>
         <DialogTrigger asChild>
-          <Button variant="default" className="w-full bg-blue-600 px-2 py-1 text-white uppercase text-lg">Add content</Button>
+          {children}
+
         </DialogTrigger>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle>Add new content</DialogTitle>
+            <DialogTitle>{title}</DialogTitle>
            
           </DialogHeader>
-         <AddContent/>
+         {Adding && <AddContent/>}
+         {Editing && <EditContent/>}
 
         
         </DialogContent>
