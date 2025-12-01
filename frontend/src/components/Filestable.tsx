@@ -4,6 +4,7 @@ import Singledoc from "./Singledoc"
 
 export default async function FilesTable() {
     const response  = await fetch('http://localhost:8000/contents/')
+  
     const data =   await response.json()
     // for sorting from older to newer
     const file_list : SingleFile[] = data.sort((a:SingleFile,b:SingleFile) => a.id - b.id);

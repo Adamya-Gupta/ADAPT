@@ -15,8 +15,16 @@ export async function add_file(
             headers:{
                 'Content-Type':'application/json'
             },
-            body:JSON.stringify({content:new_content,doc_type:"text"})
+            body:JSON.stringify({
+                content:new_content,
+                doc_type:"text",
+                is_edited:false
+            })
         })
+
+        if (!response.ok) {
+            return { status: "error", message: "Failed to add content" }
+        }
 
         revalidatePath("/contents/")
         return {status:"success",message:"Content added successfully"}
@@ -30,10 +38,9 @@ export async function add_file(
 
 // Editing file
 
-
 export async function edit_file(
     state:{status:string; message:string},
-    {id, content, is_edited}: {id:number; content:string; is_edited:boolean}) {
+    {id, content, doc_type ,is_edited}: {id:number; content:string; doc_type:string; is_edited:boolean}) {
     
 
     try{
@@ -43,8 +50,17 @@ export async function edit_file(
             headers:{
                 'Content-Type':'application/json'
             },
-            body:JSON.stringify({id:id ,content:content,is_edited:is_edited})
+            body:JSON.stringify({
+                id:id ,
+                content:content,
+                doc_type:doc_type,
+                is_edited:true
+            })
         })
+
+        if (!response.ok) {
+            return { status: "error", message: `Server error: ${response.statusText}` }
+        }
 
         revalidatePath("/contents/")
         return {status:"success",message:"Content edited successfully"}
