@@ -70,3 +70,21 @@ export async function edit_file(
         return {status:"error",message:"Failed to edit content"}
     }
 }
+
+// Deleting file
+
+export async function delete_file(id:number) {
+    const response = await fetch(`http://localhost:8000/contents/${id}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json', 
+      }
+    });
+     
+    if (response.ok) {
+      revalidatePath("/contents/")
+      return {status:"success", message:"Content deleted successfully"}
+    } else {
+      return {status:"error", message:"Failed to delete content"}
+    }
+}
