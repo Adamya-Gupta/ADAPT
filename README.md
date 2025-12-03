@@ -35,8 +35,15 @@ source venv/bin/activate
 
 ### Step 3: Install Required Dependencies
 
+#### Backend:
 ```bash
 pip install fastapi uvicorn psycopg[binary] sqlmodel
+```
+
+#### Frontend:
+```bash
+cd frontend
+npm install
 ```
 
 

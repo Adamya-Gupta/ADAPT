@@ -1,30 +1,9 @@
 from fastapi import FastAPI , Depends , HTTPException
-from sqlmodel import SQLModel , Field, create_engine ,Session ,select
-from backend import setting
+from sqlmodel import Session ,select
 from typing import Annotated
 from contextlib import asynccontextmanager
-
-
-class SingleFile (SQLModel,table = True):
-    id : int | None = Field(default = None,primary_key = True)
-    content : str = Field(index = True)
-    doc_type : str | None = Field(default='text',index = True)
-    is_edited : bool = Field(default = False)
-
-
-connection_string : str = str(setting.DATABASE_URL).replace("postgresql","postgresql+psycopg")
-
-# engine is one for whole application
-engine = create_engine(connection_string,connect_args={"sslmode":"require"},pool_recycle=300,pool_size=10,echo=True)
-
-def create_tables():
-    SQLModel.metadata.create_all(engine)
-
-
-def get_session():
-    with Session(engine) as session:
-        # yield is generator function
-        yield session
+from backend.db import get_session,create_tables
+from backend.models import SingleFile
 
 # First task after starting of the app should be to create tables
 @asynccontextmanager
@@ -53,10 +32,6 @@ async def create_content(file : SingleFile , session:Annotated[Session,Depends(g
 async def get_all(session:Annotated[Session,Depends(get_session)]):
     statement = select(SingleFile)
     allfiles = session.exec(statement).all()
-    # if allfiles: 
-    #     return allfiles
-    # else:
-    #     raise HTTPException (status_code=404 , detail="No files found")
 
     # even if no files found return empty list
     return allfiles

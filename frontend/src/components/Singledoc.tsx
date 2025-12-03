@@ -34,7 +34,7 @@ export default function Singledoc({filecontent}:{filecontent:SingleFile}) {
             <SquareCheckBig />
             </ToolTip>
             <Modal title="Edit content" Editing={true} filecontent={filecontent}>
-            <SquarePen className="text-blue-500"/>
+            <SquarePen className="text-blue-500" />
             </Modal>
             <Button onClick={handleDelete} variant="ghost">
             <Trash2 className="text-red-500 " />
