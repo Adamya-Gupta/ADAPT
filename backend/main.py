@@ -4,6 +4,7 @@ from typing import Annotated
 from contextlib import asynccontextmanager
 from backend.db import get_session,create_tables
 from backend.models import SingleFile
+from backend.router import user
 
 # First task after starting of the app should be to create tables
 @asynccontextmanager
@@ -14,6 +15,8 @@ async def lifespan(app:FastAPI):
     yield
 
 app :FastAPI = FastAPI(lifespan=lifespan,title="SingleFile",version='1.0.0')
+
+app.include_router(router=user.user_router)
 
 @app.get('/')
 async def root():

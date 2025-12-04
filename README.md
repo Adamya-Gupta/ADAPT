@@ -36,18 +36,24 @@ source venv/bin/activate
 ### Step 3: Install Required Dependencies
 
 #### Backend:
+
 ```bash
-pip install fastapi uvicorn psycopg[binary] sqlmodel
+pip install fastapi uvicorn psycopg[binary] sqlmodel python-multipart passlib bcrypt==3.2.2
 ```
 
+>[!Important]
+>Install only the mentioned versions!
+>Passlib tries to run a self-test when it starts up to check for bugs, and it uses a long password for that test. The new bcrypt version strictly forbids long passwords, causing passlib to crash immediately.
+
 #### Frontend:
+
 ```bash
 cd frontend
 npm install
 ```
 
-
 ### Step 4: Environment Variables
+
 To run this project, you will need to add the following environment variables to your `.env` file
 
 ```env
@@ -58,12 +64,14 @@ DATABASE_URL =
 ### Step 5: Run Development Servers
 
 #### Frontend server:
+
 ```bash
 cd frontend
 npm run dev
 ```
 
 #### Backend server:
+
 ```bash
 python3 -m uvicorn backend.main:app --reload
 ```
