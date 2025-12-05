@@ -38,7 +38,8 @@ source venv/bin/activate
 #### Backend:
 
 ```bash
-pip install fastapi uvicorn psycopg[binary] sqlmodel python-multipart passlib bcrypt==3.2.2
+pip install fastapi uvicorn psycopg[binary] sqlmodel python-multipart passlib bcrypt==3.2.2 python-jose[cryptography]
+
 ```
 
 >[!Important]

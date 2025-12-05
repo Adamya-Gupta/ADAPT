@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta, timezone
 from typing import Annotated
 from fastapi.params import Depends
 from passlib.context import CryptContext
@@ -5,6 +6,11 @@ from sqlmodel import Session , select
 from backend.db import get_session
 from backend.models import User , SingleFile
 from fastapi.security import OAuth2PasswordBearer
+from jose import JWTError , jwt
+
+SECRET_KEY = 'ad8d636d00404cc47941df11fea0bc719b6387ffbdd7fcd90dc93d2e0f7fa13b'
+ALGORITHM = 'HS256'
+EXPIRY_TIME = 30 # minutes
 
 # Login token URL
 oauth_scheme = OAuth2PasswordBearer(tokenUrl="/token")
@@ -45,3 +51,14 @@ def authenticate_user(
     if not verify_password(password=password, hash_password=db_user.password):
         return False
     return db_user
+
+def create_access_token(data:dict,expiry_time:timedelta|None):
+    data_to_encode = data.copy()
+    if expiry_time:
+        expire = datetime.now(timezone.utc) + expiry_time
+    else:
+        expire = datetime.now(timezone.utc) + timedelta(minutes=15)
+
+    data_to_encode.update({"exp": expire})
+    encoded_jwt = jwt.encode(data_to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    return encoded_jwt 

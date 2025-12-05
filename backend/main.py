@@ -1,10 +1,11 @@
+from datetime import timedelta
 from fastapi import FastAPI , Depends , HTTPException
 from sqlmodel import Session ,select
 from typing import Annotated
 from contextlib import asynccontextmanager
-from backend.auth import authenticate_user
+from backend.auth import EXPIRY_TIME, authenticate_user, create_access_token, create_access_token
 from backend.db import get_session,create_tables
-from backend.models import SingleFile
+from backend.models import SingleFile, Token
 from backend.router import user
 from fastapi.security import OAuth2PasswordRequestForm
 
@@ -25,7 +26,7 @@ async def root():
     return {"message" : "Welcome to the fastapi server"}
 
 # Login
-@app.post('/token')
+@app.post('/token',response_model=Token)
 async def login(form_data:Annotated[OAuth2PasswordRequestForm,Depends()],
                 session:Annotated[Session,Depends(get_session)]):
     user = authenticate_user(form_data.username,
@@ -36,7 +37,10 @@ async def login(form_data:Annotated[OAuth2PasswordRequestForm,Depends()],
             status_code=401,
             detail="Invalid username or password"
         )
-    return user
+    
+    expire_time = timedelta(minutes=EXPIRY_TIME)
+    access_token = create_access_token({"sub":form_data.username},expire_time)
+    return Token(access_token=access_token,token_type="bearer")
 
 # injected session dependency 
 @app.post('/contents/',response_model=SingleFile)
