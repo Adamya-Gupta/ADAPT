@@ -43,6 +43,7 @@ pip install fastapi uvicorn psycopg[binary] sqlmodel python-multipart passlib bc
 
 >[!Important]
 >Install only the mentioned versions!
+>
 >Passlib tries to run a self-test when it starts up to check for bugs, and it uses a long password for that test. The new bcrypt version strictly forbids long passwords, causing passlib to crash immediately.
 
 #### Frontend:

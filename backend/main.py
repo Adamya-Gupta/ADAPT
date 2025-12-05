@@ -2,9 +2,11 @@ from fastapi import FastAPI , Depends , HTTPException
 from sqlmodel import Session ,select
 from typing import Annotated
 from contextlib import asynccontextmanager
+from backend.auth import authenticate_user
 from backend.db import get_session,create_tables
 from backend.models import SingleFile
 from backend.router import user
+from fastapi.security import OAuth2PasswordRequestForm
 
 # First task after starting of the app should be to create tables
 @asynccontextmanager
@@ -22,6 +24,19 @@ app.include_router(router=user.user_router)
 async def root():
     return {"message" : "Welcome to the fastapi server"}
 
+# Login
+@app.post('/token')
+async def login(form_data:Annotated[OAuth2PasswordRequestForm,Depends()],
+                session:Annotated[Session,Depends(get_session)]):
+    user = authenticate_user(form_data.username,
+                             form_data.password,
+                             session)
+    if not user:
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid username or password"
+        )
+    return user
 
 # injected session dependency 
 @app.post('/contents/',response_model=SingleFile)
