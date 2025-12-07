@@ -1,7 +1,7 @@
 from fastapi import APIRouter , Depends , HTTPException
 from typing import Annotated
 from sqlmodel import Session
-from backend.auth import get_user_from_db, hash_password ,oauth_scheme
+from backend.auth import current_user, get_user_from_db, hash_password
 from backend.db import get_session
 from backend.models import Register_User, User
 
@@ -35,6 +35,6 @@ async def register_user(
     session.refresh(user)
     return {"message" : f"User with {user.username} registered successfully"}
 
-# @user_router.get("/me")
-# async def user_profile(current_user: Annotated[User, Depends(oauth_scheme)]):
-#     return {"hello": "world"}
+@user_router.get("/me")
+async def user_profile(current_user: Annotated[User, Depends(current_user)]):
+    return current_user

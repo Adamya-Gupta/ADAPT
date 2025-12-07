@@ -3,9 +3,9 @@ from fastapi import FastAPI , Depends , HTTPException
 from sqlmodel import Session ,select
 from typing import Annotated
 from contextlib import asynccontextmanager
-from backend.auth import EXPIRY_TIME, authenticate_user, create_access_token, create_access_token
+from backend.auth import EXPIRY_TIME, authenticate_user, create_access_token, create_access_token , current_user
 from backend.db import get_session,create_tables
-from backend.models import SingleFile, Token
+from backend.models import SingleFile, Token, User
 from backend.router import user
 from fastapi.security import OAuth2PasswordRequestForm
 
@@ -44,7 +44,9 @@ async def login(form_data:Annotated[OAuth2PasswordRequestForm,Depends()],
 
 # injected session dependency 
 @app.post('/contents/',response_model=SingleFile)
-async def create_content(file : SingleFile , session:Annotated[Session,Depends(get_session)]):
+async def create_content(current_user:Annotated[User,Depends(current_user)],
+                          file : SingleFile , 
+                          session:Annotated[Session,Depends(get_session)]):
     session.add(file)
     session.commit()
     session.refresh(file)
