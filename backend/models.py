@@ -39,3 +39,7 @@ class Token(BaseModel):
 
 class TokenData (BaseModel):
     username: str
+
+
+class SingleFile_Create (BaseModel):
+    content : str = Field(index = True)
