@@ -1,6 +1,5 @@
 from pydantic import BaseModel
 from sqlmodel import Field, SQLModel
-from fastapi.security import OAuth2PasswordRequestForm
 from typing import Annotated
 from fastapi import Form
 
