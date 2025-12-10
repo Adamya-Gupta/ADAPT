@@ -70,11 +70,16 @@ async def get_all(
     return allfiles
 
 @app.get('/contents/{id}',response_model=SingleFile)
-async def get_single_content(id: int, session:Annotated[Session,Depends(get_session)]):
-    # singlefile = session.exec(select(SingleFile).where(SingleFile.id == id)).first()
-    singlefile = session.get(SingleFile,id)
-    if singlefile:
-        return singlefile
+async def get_single_content(id: int, 
+                             current_user:Annotated[User,Depends(current_user)],
+                             session:Annotated[Session,Depends(get_session)]):
+    
+    user_files = session.exec(select(SingleFile).where(SingleFile.user_id == current_user.id)).all()
+    matched_files = next((file for file in user_files if file.id == id), None)
+    
+    # singlefile = session.get(SingleFile,id)
+    if matched_files:
+        return matched_files
     else:
         raise HTTPException (status_code=404 , detail="No file found")
         
