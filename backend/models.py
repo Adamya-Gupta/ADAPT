@@ -42,3 +42,8 @@ class TokenData (BaseModel):
 
 class SingleFile_Create (BaseModel):
     content : str = Field(index = True)
+
+class SingleFile_Edit (BaseModel):
+    content : str = Field(index = True)
+    is_edited : bool = Field(default = True)
+    doc_type : str | None = Field(default='text',index = True)

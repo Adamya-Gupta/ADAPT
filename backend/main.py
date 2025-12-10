@@ -5,7 +5,7 @@ from typing import Annotated
 from contextlib import asynccontextmanager
 from backend.auth import EXPIRY_TIME, authenticate_user, create_access_token, create_access_token , current_user
 from backend.db import get_session,create_tables
-from backend.models import SingleFile, SingleFile_Create, Token, User
+from backend.models import SingleFile, SingleFile_Create, SingleFile_Edit, Token, User
 from backend.router import user
 from fastapi.security import OAuth2PasswordRequestForm
 
@@ -85,9 +85,14 @@ async def get_single_content(id: int,
         
 
 @app.put('/contents/{id}')
-async def edit_content(id:int,file:SingleFile,session:Annotated[Session,Depends(get_session)]):
-    # existingfile = session.exec(select(SingleFile).where(SingleFile.id==id)).first()
-    existingfile = session.get(SingleFile,id)
+async def edit_content(id:int,
+                       file:SingleFile_Edit,
+                        current_user:Annotated[User,Depends(current_user)],
+                       session:Annotated[Session,Depends(get_session)]):
+    
+    user_files = session.exec(select(SingleFile).where(SingleFile.user_id == current_user.id)).all()
+    existingfile = next((file for file in user_files if file.id == id), None)
+
     if existingfile:
         existingfile.content = file.content
         existingfile.doc_type = file.doc_type
@@ -101,9 +106,13 @@ async def edit_content(id:int,file:SingleFile,session:Annotated[Session,Depends(
         raise HTTPException (status_code=404 , detail="No content found")
 
 @app.delete('/contents/{id}')
-async def delete_content(id:int , session:Annotated[Session,Depends(get_session)] ):
-    # file = session.exec(select(SingleFile).where(SingleFile.id==id)).first()
-    file = session.get(SingleFile,id)
+async def delete_content(id:int,
+                          current_user:Annotated[User,Depends(current_user)],
+                          session:Annotated[Session,Depends(get_session)] ):
+    
+    user_files = session.exec(select(SingleFile).where(SingleFile.user_id == current_user.id)).all()
+    file = next((file for file in user_files if file.id == id), None)
+
     if file:
         session.delete(file)
         session.commit()
