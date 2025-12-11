@@ -1,9 +1,9 @@
 from datetime import timedelta
-from fastapi import FastAPI , Depends , HTTPException
+from fastapi import FastAPI , Depends , HTTPException , status
 from sqlmodel import Session ,select
 from typing import Annotated
 from contextlib import asynccontextmanager
-from backend.auth import EXPIRY_TIME, authenticate_user, create_access_token, create_access_token , current_user
+from backend.auth import EXPIRY_TIME, authenticate_user, create_access_token, create_access_token , current_user, validate_refresh_token , create_refresh_token
 from backend.db import get_session,create_tables
 from backend.models import SingleFile, SingleFile_Create, SingleFile_Edit, Token, User
 from backend.router import user
@@ -40,7 +40,36 @@ async def login(form_data:Annotated[OAuth2PasswordRequestForm,Depends()],
     
     expire_time = timedelta(minutes=EXPIRY_TIME)
     access_token = create_access_token({"sub":form_data.username},expire_time)
-    return Token(access_token=access_token,token_type="bearer")
+
+    refresh_expire_time = timedelta(days=7)
+    refresh_token = create_refresh_token({"sub":user.email},refresh_expire_time)
+
+
+    return Token(access_token=access_token,token_type="bearer",
+                 refresh_token=refresh_token)
+
+
+@app.post('/token/resfresh')
+def refresh_token(old_refresh_token: str,
+                  session:Annotated[Session,Depends(get_session)]):
+    credentials_exception = HTTPException(
+        status_code = status.HTTP_401_UNAUTHORIZED,
+        detail="Invalid token, Please login again",
+        headers={"www-Authenticate":"Bearer"},
+    )
+    user = validate_refresh_token(old_refresh_token,session)
+
+    if not user:
+        raise credentials_exception
+
+
+    expire_time = timedelta(minutes=EXPIRY_TIME)
+    access_token = create_access_token({"sub":user.username},expire_time)
+
+    refresh_expire_time = timedelta(days=7)
+    refresh_token = create_refresh_token({"sub":user.email},refresh_expire_time)
+
+    return Token(access_token=access_token,token_type="bearer",refresh_token=refresh_token)
 
 # injected session dependency 
 @app.post('/contents/',response_model=SingleFile)

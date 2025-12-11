@@ -35,9 +35,13 @@ class Register_User (BaseModel):
 class Token(BaseModel):
     access_token: str
     token_type: str
+    refresh_token: str 
 
 class TokenData (BaseModel):
     username: str
+
+class RefreshTokenData (BaseModel):
+    email: str
 
 
 class SingleFile_Create (BaseModel):
