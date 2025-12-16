@@ -5,18 +5,14 @@ from fastapi.params import Depends
 from passlib.context import CryptContext
 from sqlmodel import Session , select
 from backend.db import get_session
-from backend.models import RefreshTokenData, TokenData, User , SingleFile
+from backend.models import RefreshTokenData, TokenData, User
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError , jwt
+from backend.setting import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
 
-SECRET_KEY = 'ad8d636d00404cc47941df11fea0bc719b6387ffbdd7fcd90dc93d2e0f7fa13b'
-ALGORITHM = 'HS256'
-EXPIRY_TIME = 30 # minutes
 
 # Login token URL
 oauth_scheme = OAuth2PasswordBearer(tokenUrl="/token")
-
-# pwd_context = CryptContext(schemes="bcrypt")
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 def hash_password(password):
@@ -58,10 +54,10 @@ def create_access_token(data:dict,expiry_time:timedelta|None):
     if expiry_time:
         expire = datetime.now(timezone.utc) + expiry_time
     else:
-        expire = datetime.now(timezone.utc) + timedelta(minutes=15)
+        expire = datetime.now(timezone.utc) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
 
     data_to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(data_to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    encoded_jwt = jwt.encode(data_to_encode, str(SECRET_KEY), algorithm=ALGORITHM)
     return encoded_jwt 
 
 # current user
@@ -74,7 +70,7 @@ def current_user(token: Annotated[str,Depends(oauth_scheme)],
     )
 
     try:
-        payload = jwt.decode(token,SECRET_KEY,ALGORITHM)
+        payload = jwt.decode(token,str(SECRET_KEY),ALGORITHM)
         username:str | None = payload.get("sub")
         
         if username is None:
@@ -96,7 +92,7 @@ def create_refresh_token(data:dict,expiry_time:timedelta|None):
         expire = datetime.now(timezone.utc) + timedelta(minutes=15)
 
     data_to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(data_to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    encoded_jwt = jwt.encode(data_to_encode, str(SECRET_KEY), algorithm=ALGORITHM)
     return encoded_jwt 
 
 def validate_refresh_token(token: str,
@@ -108,7 +104,7 @@ def validate_refresh_token(token: str,
     )
 
     try:
-        payload = jwt.decode(token,SECRET_KEY,ALGORITHM)
+        payload = jwt.decode(token,str(SECRET_KEY),algorithm=ALGORITHM)
         email:str | None = payload.get("sub")
         
         if email is None:

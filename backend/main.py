@@ -3,11 +3,12 @@ from fastapi import FastAPI , Depends , HTTPException , status
 from sqlmodel import Session ,select
 from typing import Annotated
 from contextlib import asynccontextmanager
-from backend.auth import EXPIRY_TIME, authenticate_user, create_access_token, create_access_token , current_user, validate_refresh_token , create_refresh_token
+from backend.auth import authenticate_user, create_access_token, create_access_token , current_user, validate_refresh_token , create_refresh_token
 from backend.db import get_session,create_tables
 from backend.models import SingleFile, SingleFile_Create, SingleFile_Edit, Token, User
 from backend.router import user
 from fastapi.security import OAuth2PasswordRequestForm
+from backend.setting import ACCESS_TOKEN_EXPIRE_MINUTES
 
 # First task after starting of the app should be to create tables
 @asynccontextmanager
@@ -38,7 +39,7 @@ async def login(form_data:Annotated[OAuth2PasswordRequestForm,Depends()],
             detail="Invalid username or password"
         )
     
-    expire_time = timedelta(minutes=EXPIRY_TIME)
+    expire_time = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token({"sub":form_data.username},expire_time)
 
     refresh_expire_time = timedelta(days=7)
@@ -49,7 +50,7 @@ async def login(form_data:Annotated[OAuth2PasswordRequestForm,Depends()],
                  refresh_token=refresh_token)
 
 
-@app.post('/token/resfresh')
+@app.post('/token/refresh')
 def refresh_token(old_refresh_token: str,
                   session:Annotated[Session,Depends(get_session)]):
     credentials_exception = HTTPException(
@@ -63,7 +64,7 @@ def refresh_token(old_refresh_token: str,
         raise credentials_exception
 
 
-    expire_time = timedelta(minutes=EXPIRY_TIME)
+    expire_time = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token({"sub":user.username},expire_time)
 
     refresh_expire_time = timedelta(days=7)

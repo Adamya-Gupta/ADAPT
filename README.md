@@ -61,9 +61,25 @@ To run this project, you will need to add the following environment variables to
 ```env
 DEBUG = True
 DATABASE_URL = 
+SECRET_KEY =
+ALGORITHM = can be HS256 , HS384 , etc.
+ACCESS_TOKEN_EXPIRE_MINUTES = 
 ```
 
+>[!Tip]
+>To generate secret key you can use this command:
+>
+>```bash
+>openssl rand --hex 32
+>```
+
 ### Step 5: Run Development Servers
+
+#### Backend server:
+
+```bash
+python3 -m uvicorn backend.main:app --reload
+```
 
 #### Frontend server:
 
@@ -72,10 +88,5 @@ cd frontend
 npm run dev
 ```
 
-#### Backend server:
-
-```bash
-python3 -m uvicorn backend.main:app --reload
-```
 
 ## 🚀 Deployment
